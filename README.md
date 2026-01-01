@@ -1,1 +1,1 @@
-![Alt text](/static/getnextline.drawio.pngraw=true "Diagram for get next line")
+![Alt text](/static/getnextline.drawio.png?raw=true "Diagram for get next line")
