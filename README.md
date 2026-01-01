@@ -1,0 +1,1 @@
+![Alt text](./static/getnextline.drawio.pngraw=true "Diagram for get next line")
