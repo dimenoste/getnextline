@@ -111,12 +111,9 @@ char	*ft_strdup(const char *s)
 
 char	*ft_strdup_up_to_nl(const char *s)
 {
-	char	*strdup;
-	int		i;
-	int		lens;
-	int		pos_nl;
+	int	lens;
+	int	pos_nl;
 
-	i = 0;
 	lens = ft_strlen(s);
 	pos_nl = get_pos_nl(s);
 	if (pos_nl != -1 && pos_nl < lens)
@@ -128,12 +125,9 @@ char	*ft_strdup_up_to_nl(const char *s)
 
 char	*ft_strdup_after_nl(const char *s)
 {
-	char	*strdup;
-	int		i;
-	int		lens;
-	int		pos_nl;
+	int	lens;
+	int	pos_nl;
 
-	i = 0;
 	lens = ft_strlen(s);
 	pos_nl = get_pos_nl(s);
 	if (pos_nl != -1 && pos_nl < lens)

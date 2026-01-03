@@ -2,4 +2,4 @@
 
 
 
-Thanks to *wboussah* for reviewing my logic and discussing edge cases
+Thanks to Wissem Boussah *wboussah* for reviewing my logic and discussing edge cases and Ronan Gouachet *rgouachet* for the last and most vicious memory leak.

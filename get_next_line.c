@@ -1,37 +1,36 @@
 #include "get_next_line.h"
 
-char	*join_line(char *left_over, char *buffer)
+char	*join_line(char *stash, char *buffer)
 {
-	if (!left_over)
-		left_over = ft_strdup("");
-	left_over = ft_strjoin(left_over, buffer);
-	return (left_over);
+	char	*tmp;
+
+	tmp = stash;
+	if (!tmp)
+		tmp = ft_strdup("");
+	stash = ft_strjoin(tmp, buffer);
+	free(tmp);
+	return (stash);
 }
 
 char	*read_and_stash(int fd, char *stash)
 {
-	char	*tmp;
-	char	*line;
-	char	*buffer;
+	char	buffer[BUFFER_SIZE + 1];
 	int		n;
 
 	n = 0;
-	buffer = malloc(BUFFER_SIZE + 1);
 	while (get_pos_nl(stash) == -1) // stash has NO \n
 	{
 		printf("read_and_stash... First stash without nl is |%s|\n", stash);
 		n = read(fd, buffer, BUFFER_SIZE);
+		buffer[n] = '\0';
 		if (n == 0)
 		{
 			printf("read_and_stash... no first read,or last read STASH is |%s|\n",
 				stash);
 			return (stash);
 		}
-		buffer[n] = '\0';
-		tmp = stash;
-		stash = join_line(tmp, buffer);
-		free(tmp);
-		free(buffer);
+		stash = join_line(stash, buffer);
+		printf("read_and_stash... before free NEW STASH is |%s|\n", stash);
 		printf("read_and_stash... NEW STASH is |%s|\n", stash);
 	}
 	printf("read_and_stash... before return, STASH is |%s|\n", stash);
@@ -42,13 +41,12 @@ char	*get_next_line(int fd)
 {
 	static char	*stash;
 	char		*tmp;
-	int			n;
 	char		*line;
 
 	printf("get_next_line... STARTING stash is |%s|\n", stash);
 	// printf("\n========================================================\n");
 	// printf("========================================================\n");
-	n = 0;
+	// n = 0;
 	if (get_pos_nl(stash) == -1)
 	{
 		stash = read_and_stash(fd, stash);
@@ -62,15 +60,16 @@ char	*get_next_line(int fd)
 		stash);
 	if (get_pos_nl(stash) != -1)
 	{
-		printf("get_next_line... STASH with nl is |%s|\n", stash);
-		line = ft_strdup_up_to_nl(stash);
-		printf("get_next_line... LIne before nl is |%s|\n", line);
 		tmp = stash;
+		printf("get_next_line... STASH with nl is |%s|\n", stash);
+		line = ft_strdup_up_to_nl(tmp);
+		printf("get_next_line... LIne before nl is |%s|\n", line);
 		stash = ft_strdup_after_nl(tmp);
 		free(tmp);
 		return (line);
 	}
 	printf("get_next_line.. END STASH is |%s|\n", stash);
+	// verify not to return an incomplete line
 	return (stash);
 }
 
