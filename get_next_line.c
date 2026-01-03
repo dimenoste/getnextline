@@ -1,157 +1,101 @@
 #include "get_next_line.h"
 
-// if newline is at the end of buffer = 0
-// if newline is before the end of buffer  = 1
-// if newline is not found within buffer size = -1
-int	find_newline_inbuffer(char *s, int buffer_size)
-{
-	int	i;
-
-	i = 0;
-	while (s[i] && i < buffer_size && s[i] != '\n')
-		i++;
-	if (s[i] == '\n' && i == (buffer_size - 1))
-		return (0);
-	if (s[i] == '\n' && i < (buffer_size - 1))
-		return (1);
-	return (-1);
-}
-
-int	pos_newline_inbuffer(char *s, int buffer_size)
-{
-	int	i;
-
-	i = 0;
-	while (i < (int)buffer_size && s[i] != '\0')
-	{
-		if (s[i] == '\n')
-			return (i);
-		i++;
-	}
-	return (-1);
-}
-
-char	*fill_line(char *left_over, char *buffer)
+char	*join_line(char *left_over, char *buffer)
 {
 	if (!left_over)
-	{
 		left_over = ft_strdup("");
-	}
 	left_over = ft_strjoin(left_over, buffer);
 	return (left_over);
 }
 
-char	*before_nl(char *line)
+char	*read_and_stash(int fd, char *stash)
 {
-	int	nl;
+	char	*tmp;
+	char	*line;
+	char	*buffer;
+	int		n;
 
-	nl = 0;
-	nl = pos_newline_inbuffer(line, (ft_strlen(line) + 1));
-	if (nl != -1)
+	n = 0;
+	buffer = malloc(BUFFER_SIZE + 1);
+	while (get_pos_nl(stash) == -1) // stash has NO \n
 	{
-		line[nl + 1] = '\0';
+		printf("read_and_stash... First stash without nl is |%s|\n", stash);
+		n = read(fd, buffer, BUFFER_SIZE);
+		if (n == 0)
+		{
+			printf("read_and_stash... no first read,or last read STASH is |%s|\n",
+				stash);
+			return (stash);
+		}
+		buffer[n] = '\0';
+		tmp = stash;
+		stash = join_line(tmp, buffer);
+		free(tmp);
+		free(buffer);
+		printf("read_and_stash... NEW STASH is |%s|\n", stash);
 	}
-	return (line);
-}
-
-char	*ft_after_nl(const char *s, char c)
-{
-	while (*s != '\0' && c != *s)
-		s++;
-	if (c == *s && *(s + 1) != '\0')
-		return ((char *)(s + 1));
-	return (NULL);
+	printf("read_and_stash... before return, STASH is |%s|\n", stash);
+	return (stash);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*left_over;
+	static char	*stash;
 	char		*tmp;
-	char		*line;
-	char		*buffer;
 	int			n;
+	char		*line;
 
+	printf("get_next_line... STARTING stash is |%s|\n", stash);
 	// printf("\n========================================================\n");
 	// printf("========================================================\n");
-	if (fd == -1)
+	n = 0;
+	if (get_pos_nl(stash) == -1)
 	{
-		return (NULL);
+		stash = read_and_stash(fd, stash);
+		printf("get_next_line... in stash null, returned STASH is |%s|\n",
+			stash);
+		if (!stash)
+			return (NULL);
+		printf("get_next_line.. in stash null, STASH with nl is |%s|\n", stash);
 	}
-	if (ft_strchr(left_over, '\n'))
+	printf("get_next_line.. OUTSIDE stash null, STASH with nl is |%s|\n",
+		stash);
+	if (get_pos_nl(stash) != -1)
 	{
-		tmp = left_over;
-		line = before_nl(tmp);
-		left_over = ft_after_nl(tmp, '\n');
+		printf("get_next_line... STASH with nl is |%s|\n", stash);
+		line = ft_strdup_up_to_nl(stash);
+		printf("get_next_line... LIne before nl is |%s|\n", line);
+		tmp = stash;
+		stash = ft_strdup_after_nl(tmp);
+		free(tmp);
 		return (line);
 	}
-	buffer = malloc(BUFFER_SIZE + 1);
-	n = read(fd, buffer, BUFFER_SIZE);
-	buffer[n] = '\0';
-	if (n == 0 && left_over)
-	{
-		tmp = left_over;
-		line = before_nl(tmp);
-		left_over = ft_after_nl(buffer, '\n');
-		return (line);
-	}
-	while (n > 0 && ft_strchr(buffer, '\n') == NULL) // renvoie NULL quand NO nl
-	{
-		left_over = fill_line(left_over, buffer);
-		n = read(fd, buffer, BUFFER_SIZE);
-		buffer[n] = '\0';
-	}
-	left_over = fill_line(left_over, buffer);
-	tmp = left_over;
-	line = before_nl(tmp);
-	left_over = ft_after_nl(tmp, '\n');
-	return (line);
+	printf("get_next_line.. END STASH is |%s|\n", stash);
+	return (stash);
 }
 
 int	main(void)
 {
 	int fd;
 	char *line;
-	fd = open("inputsmall.txt", O_RDONLY);
-	// printf("fd is %d\n", fd);
+	fd = open("./data/inputsmall.txt", O_RDONLY);
 	if (fd == -1)
 	{
 		return (1);
 	}
-
+	printf("========================================================\n");
 	line = get_next_line(fd);
 	printf("line 1 in main is :%s\n", line);
 	free(line);
-
+	printf("========================================================\n");
 	line = get_next_line(fd);
 	printf("line 2 in main is :%s\n", line);
 	free(line);
-
+	printf("========================================================\n");
 	line = get_next_line(fd);
 	printf("line 3 in main is :%s\n", line);
 	free(line);
-
-	// 	line = get_next_line(fd);
-	// printf("line 4 in main is :%s\n", line);
-	// free(line);
-
-	// 		line = get_next_line(fd);
-	// printf("line 4 in main is :%s\n", line);
-	// free(line);
-
-	// while (get_next_line(fd))
-	// {
-
-	// 	printf("line 1 in main is :%s\n", line);
-	// }
-	// free(line);
-
-	// char *buffer = ft_strdup("abc\0def\nffdfdfd");
-	// printf("buffer is  %s\n", buffer);
-
-	// printf("adress of buffer  %p\n", &buffer[8]);
-	// line = before_nl(buffer);
-	// printf("before nl, line is %s\n", line);
-	// printf("before nl, buffer is %s\n", buffer);
+	printf("========================================================\n");
 
 	close(fd);
 	return (0);
