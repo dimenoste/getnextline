@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/04 23:33:41 by mberraho          #+#    #+#             */
+/*   Updated: 2026/01/04 23:33:43 by mberraho         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 int	ft_strlen(const char *s)
@@ -108,38 +120,3 @@ char	*ft_strdup(const char *s)
 	strdup[lens] = '\0';
 	return (strdup);
 }
-
-char	*ft_strdup_up_to_nl(const char *s)
-{
-	int	lens;
-	int	pos_nl;
-
-	lens = ft_strlen(s);
-	pos_nl = get_pos_nl(s);
-	if (pos_nl != -1 && pos_nl < lens)
-	{
-		return (ft_substr(s, 0, (get_pos_nl(s)) + 1));
-	}
-	return (NULL);
-}
-
-char	*ft_strdup_after_nl(const char *s)
-{
-	int	lens;
-	int	pos_nl;
-
-	lens = ft_strlen(s);
-	pos_nl = get_pos_nl(s);
-	if (pos_nl != -1 && pos_nl < lens)
-	{
-		return (ft_substr(s, (pos_nl + 1), (lens - pos_nl - 1)));
-	}
-	return (NULL);
-}
-
-// a b c  \n d e f 0 1 2 3 4 5 6
-
-// 	lens = 7 pos_nl = 3
-
-// 	lens -
-// 	pos_nl - 1 = 7 - 3 - 1 = 3

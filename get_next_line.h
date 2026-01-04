@@ -5,13 +5,13 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/12/06 22:32:03 by mberraho          #+#    #+#             */
-/*   Updated: 2026/01/03 22:26:04 by mberraho         ###   ########.fr       */
+/*   Created: 2026/01/04 23:35:17 by mberraho          #+#    #+#             */
+/*   Updated: 2026/01/04 23:35:41 by mberraho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GETNEXTLINE_H
-# define GETNEXTLINE_H
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
 
 # include <fcntl.h>
 # include <stdio.h>

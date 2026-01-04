@@ -1,4 +1,44 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/04 23:32:41 by mberraho          #+#    #+#             */
+/*   Updated: 2026/01/04 23:33:15 by mberraho         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
+
+char	*ft_strdup_up_to_nl(const char *s)
+{
+	int	lens;
+	int	pos_nl;
+
+	lens = ft_strlen(s);
+	pos_nl = get_pos_nl(s);
+	if (pos_nl != -1 && pos_nl < lens)
+	{
+		return (ft_substr(s, 0, (get_pos_nl(s)) + 1));
+	}
+	return (NULL);
+}
+
+char	*ft_strdup_after_nl(const char *s)
+{
+	int	lens;
+	int	pos_nl;
+
+	lens = ft_strlen(s);
+	pos_nl = get_pos_nl(s);
+	if (pos_nl != -1 && pos_nl < lens)
+	{
+		return (ft_substr(s, (pos_nl + 1), (lens - pos_nl - 1)));
+	}
+	return (NULL);
+}
 
 char	*join_line(char *stash, char *buffer)
 {
@@ -12,28 +52,26 @@ char	*join_line(char *stash, char *buffer)
 	return (stash);
 }
 
-char	*read_and_stash(int fd, char *stash)
+char	*read_and_stash(int fd, char *stash, size_t buffersize)
 {
-	char	buffer[BUFFER_SIZE + 1];
+	char	*buffer;
 	int		n;
 
 	n = 0;
-	while (get_pos_nl(stash) == -1) // stash has NO \n
+	while (get_pos_nl(stash) == -1 && buffersize > 0
+		&& buffersize <= 0x7ffff000)
 	{
-		printf("read_and_stash... First stash without nl is |%s|\n", stash);
-		n = read(fd, buffer, BUFFER_SIZE);
-		buffer[n] = '\0';
-		if (n == 0)
+		buffer = malloc(buffersize + 1);
+		n = read(fd, buffer, buffersize);
+		if (n <= 0)
 		{
-			printf("read_and_stash... no first read,or last read STASH is |%s|\n",
-				stash);
+			free(buffer);
 			return (stash);
 		}
+		buffer[n] = '\0';
 		stash = join_line(stash, buffer);
-		printf("read_and_stash... before free NEW STASH is |%s|\n", stash);
-		printf("read_and_stash... NEW STASH is |%s|\n", stash);
+		free(buffer);
 	}
-	printf("read_and_stash... before return, STASH is |%s|\n", stash);
 	return (stash);
 }
 
@@ -43,59 +81,57 @@ char	*get_next_line(int fd)
 	char		*tmp;
 	char		*line;
 
-	printf("get_next_line... STARTING stash is |%s|\n", stash);
-	// printf("\n========================================================\n");
-	// printf("========================================================\n");
-	// n = 0;
+	if (fd <= 0 || BUFFER_SIZE <= 0)
+		return (NULL);
 	if (get_pos_nl(stash) == -1)
 	{
-		stash = read_and_stash(fd, stash);
-		printf("get_next_line... in stash null, returned STASH is |%s|\n",
-			stash);
+		stash = read_and_stash(fd, stash, BUFFER_SIZE);
 		if (!stash)
 			return (NULL);
-		printf("get_next_line.. in stash null, STASH with nl is |%s|\n", stash);
 	}
-	printf("get_next_line.. OUTSIDE stash null, STASH with nl is |%s|\n",
-		stash);
 	if (get_pos_nl(stash) != -1)
 	{
 		tmp = stash;
-		printf("get_next_line... STASH with nl is |%s|\n", stash);
 		line = ft_strdup_up_to_nl(tmp);
-		printf("get_next_line... LIne before nl is |%s|\n", line);
 		stash = ft_strdup_after_nl(tmp);
 		free(tmp);
 		return (line);
 	}
-	printf("get_next_line.. END STASH is |%s|\n", stash);
-	// verify not to return an incomplete line
-	return (stash);
+	line = ft_strdup(stash);
+	free(stash);
+	stash = NULL;
+	return (line);
 }
 
-int	main(void)
-{
-	int fd;
-	char *line;
-	fd = open("./data/inputsmall.txt", O_RDONLY);
-	if (fd == -1)
-	{
-		return (1);
-	}
-	printf("========================================================\n");
-	line = get_next_line(fd);
-	printf("line 1 in main is :%s\n", line);
-	free(line);
-	printf("========================================================\n");
-	line = get_next_line(fd);
-	printf("line 2 in main is :%s\n", line);
-	free(line);
-	printf("========================================================\n");
-	line = get_next_line(fd);
-	printf("line 3 in main is :%s\n", line);
-	free(line);
-	printf("========================================================\n");
+// int	main(void)
+// {
+// 	int fd;
+// 	char *line;
+// 	fd = open("./gnlTester/files/big_line_with_nl", O_RDONLY);
+// 	if (fd == -1)
+// 	{
+// 		return (1);
+// 	}
 
-	close(fd);
-	return (0);
-}
+// 	printf("========================================================\n");
+// 	line = get_next_line(fd);
+// 	printf("line in main is :|%s|\n", line);
+// 	printf("========================================================\n");
+// 	free(line);
+// 	while (line)
+// 	{
+// 		printf("========================================================\n");
+// 		line = get_next_line(fd);
+// 		printf("line in main is :|%s|\n", line);
+// 		printf("========================================================\n");
+// 		free(line);
+// 	}
+// 	printf("========================================================\n");
+// 	line = get_next_line(fd);
+// 	printf("still a line ?  :|%s|\n", line);
+
+// 	printf("========================================================\n");
+
+// 	close(fd);
+// 	return (0);
+// }
