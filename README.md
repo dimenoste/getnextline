@@ -1,4 +1,4 @@
-![Alt text](/static/getnextline.drawio.png?raw=true "Diagram for get next line")
+![Alt text](https://github.com/dimenoste/getnextline/blob/big_buffer_size/static/getnextline.drawio.png?raw=true "Diagram for get next line")
 
 *This activity has been created as part of the 42 curriculum by mberraho.*
 
