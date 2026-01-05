@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line_utils.c                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/04 23:33:41 by mberraho          #+#    #+#             */
+/*   Updated: 2026/01/04 23:33:43 by mberraho         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
 int	ft_strlen(const char *s)
@@ -10,29 +22,27 @@ int	ft_strlen(const char *s)
 	return (i);
 }
 
-char	*ft_strchr(const char *s, int c)
+int	get_pos_nl(const char *s)
 {
-	int	i;
+	int		i;
 	char	*str;
 
 	i = 0;
 	str = (char *)s;
 	if (!str)
-		return (NULL);
+		return (-1);
 	while (str[i] != '\0')
 	{
-		if (str[i] == (char)c)
-			return (&str[i]);
+		if (str[i] == '\n')
+			return (i);
 		i++;
 	}
-	if (str[i] == (char)c)
+	if (str[i] == '\n')
 	{
-		return (&str[i]);
+		return (i);
 	}
-	return (NULL);
+	return (-1);
 }
-
-
 
 char	*ft_substr(char const *s, unsigned int start, size_t len)
 {
@@ -49,7 +59,7 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	if (!s)
 		return (NULL);
 	if ((start >= len_of_s) || len == 0)
-		return (ft_strdup(""));
+		return (NULL);
 	if (pos_end_subw >= len_of_s)
 		pos_end_subw = len_of_s - 1;
 	subw = malloc((pos_end_subw - start + 1 + 1) * sizeof(char));
@@ -63,12 +73,11 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	return (subw);
 }
 
-
 char	*ft_strjoin(char const *s1, char const *s2)
 {
 	char	*s;
-	int	i;
-	int	j;
+	int		i;
+	int		j;
 
 	i = 0;
 	j = 0;
@@ -91,7 +100,6 @@ char	*ft_strjoin(char const *s1, char const *s2)
 	s[ft_strlen(s1) + ft_strlen(s2)] = '\0';
 	return (s);
 }
-
 
 char	*ft_strdup(const char *s)
 {

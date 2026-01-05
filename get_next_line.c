@@ -1,179 +1,136 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/01/04 23:32:41 by mberraho          #+#    #+#             */
+/*   Updated: 2026/01/04 23:33:15 by mberraho         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "get_next_line.h"
 
-// if newline is at the end of buffer = 0
-// if newline is before the end of buffer  = 1
-// if newline is not found within buffer size = -1
-int	find_newline_inbuffer(char *s, int buffer_size)
+char	*ft_strdup_up_to_nl(const char *s)
 {
-	int	i;
+	int	lens;
+	int	pos_nl;
 
-	i = 0;
-	while (s[i] && i < buffer_size && s[i] != '\n')
-		i++;
-	if (s[i] == '\n' && i == (buffer_size - 1))
-		return (0);
-	if (s[i] == '\n' && i < (buffer_size - 1))
-		return (1);
-	return (-1);
-}
-
-int	pos_newline_inbuffer(char *s, int buffer_size)
-{
-	int	i;
-
-	i = 0;
-	while (i < (int)buffer_size && s[i] != '\0')
+	lens = ft_strlen(s);
+	pos_nl = get_pos_nl(s);
+	if (pos_nl != -1 && pos_nl < lens)
 	{
-		if (s[i] == '\n')
-			return (i);
-		i++;
+		return (ft_substr(s, 0, (get_pos_nl(s)) + 1));
 	}
-	return (-1);
-}
-
-char *fill_line(char *left_over, char *buffer)
-{
-	if (!left_over)
-	{
-		// printf("leftover vide, il va etre cree");
-		left_over = ft_strdup("");
-	}
-	left_over = ft_strjoin(left_over, buffer);
-	// printf("new left_over is %s\n", left_over);
-	//free(left_over);
-	return (left_over);
-}
-
-char *before_nl(char *line)
-{
-	int nl;
-	
-	nl = 0;
-	nl = pos_newline_inbuffer(line, (ft_strlen(line) + 1));
-	if (nl != -1)
-	{
-		// printf("adress of line  %p\n", &line[nl + 1]);
-		line[nl + 1] = '\0';
-	}
-	return (line);
-}
-
-
-char	*ft_after_nl(const char *s, char c)
-{
-
-	while (*s != '\0' && c != *s)
-		s++;
-	if (c == *s && *(s+1) != '\0')
-		return ((char *)(s+1));
 	return (NULL);
 }
 
-
-// char *set_line(char *line, char **pleftover)
-// {
-// 	int nl;
-	
-// 	nl = pos_newline_inbuffer(line, '\n');
-// 	if (nl != -1)
-// 	{
-// 		line[nl + 1] = '\0';
-// 	}
-// 	return (line);
-// }
-
-char	*get_next_line(int fd)
+char	*ft_strdup_after_nl(const char *s)
 {
-	// printf("\n========================================================\n");
-	// printf("========================================================\n");
-	static char	*left_over;
-	char *tmp;
-	char	*line;
+	int	lens;
+	int	pos_nl;
+
+	lens = ft_strlen(s);
+	pos_nl = get_pos_nl(s);
+	if (pos_nl != -1 && pos_nl < lens)
+	{
+		return (ft_substr(s, (pos_nl + 1), (lens - pos_nl - 1)));
+	}
+	return (NULL);
+}
+
+char	*join_line(char *stash, char *buffer)
+{
+	char	*tmp;
+
+	tmp = stash;
+	if (!tmp)
+		tmp = ft_strdup("");
+	stash = ft_strjoin(tmp, buffer);
+	free(tmp);
+	return (stash);
+}
+
+char	*read_and_stash(int fd, char *stash, size_t buffersize)
+{
 	char	*buffer;
 	int		n;
 
-
-	if (fd == -1)
+	n = 0;
+	while (get_pos_nl(stash) == -1 && buffersize > 0
+		&& buffersize <= 0x7ffff000)
 	{
-		return NULL;
-	}
-
-	buffer = malloc(BUFFER_SIZE + 1);
-	n = read(fd, buffer, BUFFER_SIZE);
-	buffer[n] = '\0';
-	// printf("n is %d\n", n);
-	// printf("first buffer is %s\n", buffer);
-	// printf("first left_over is %s\n", left_over);
-
-	while (n > 0 && ft_strchr(buffer, '\n') == NULL)//renvoie NULL quand NO nl
-	{
-		left_over = fill_line(left_over, buffer);
-		n = read(fd, buffer, BUFFER_SIZE);
+		buffer = malloc(buffersize + 1);
+		n = read(fd, buffer, buffersize);
+		if (n <= 0)
+		{
+			free(buffer);
+			return (stash);
+		}
 		buffer[n] = '\0';
+		stash = join_line(stash, buffer);
+		free(buffer);
 	}
-	// printf("left_over before fill_line is %s\n", left_over);
-	left_over = fill_line(left_over, buffer);
-	// printf(" left_over is %s\n", left_over);
-	// if (ft_strchr(buffer, '\0'))
-	// 	printf("back0 trouve hors du cas du newline\n");
-	//printf("buffer is %s\n", buffer);
+	return (stash);
+}
 
-	// printf("has new line ?  buffer is %s\n", buffer);
-	tmp = left_over; 
-	//printf("tmp is %s\n", tmp);
-	line = before_nl(tmp);
-	// printf("before nl, line is %s\n", line);
-	// printf("buffer is  %s\n", buffer);
-	left_over = ft_after_nl(buffer, '\n');
-	// printf("after nl, left_over is %s\n", left_over);
-	//line = ft_strjoin(tmp, line);
+char	*get_next_line(int fd)
+{
+	static char	*stash;
+	char		*tmp;
+	char		*line;
+
+	if (fd <= 0 || BUFFER_SIZE <= 0)
+		return (NULL);
+	if (get_pos_nl(stash) == -1)
+	{
+		stash = read_and_stash(fd, stash, BUFFER_SIZE);
+		if (!stash)
+			return (NULL);
+	}
+	if (get_pos_nl(stash) != -1)
+	{
+		tmp = stash;
+		line = ft_strdup_up_to_nl(tmp);
+		stash = ft_strdup_after_nl(tmp);
+		free(tmp);
+		return (line);
+	}
+	line = ft_strdup(stash);
+	free(stash);
+	stash = NULL;
 	return (line);
 }
 
 // int	main(void)
 // {
-// 	int	fd;
+// 	int fd;
 // 	char *line;
-// 	fd = open("inputsmall.txt", O_RDONLY);
-// 	//printf("fd is %d\n", fd);
+// 	fd = open("./gnlTester/files/big_line_with_nl", O_RDONLY);
 // 	if (fd == -1)
 // 	{
-// 		return(1);
+// 		return (1);
 // 	}
-// 	line = getnexline(fd);
-// 	printf("line 1 in main is :%s\n", line);
+
+// 	printf("========================================================\n");
+// 	line = get_next_line(fd);
+// 	printf("line in main is :|%s|\n", line);
+// 	printf("========================================================\n");
 // 	free(line);
+// 	while (line)
+// 	{
+// 		printf("========================================================\n");
+// 		line = get_next_line(fd);
+// 		printf("line in main is :|%s|\n", line);
+// 		printf("========================================================\n");
+// 		free(line);
+// 	}
+// 	printf("========================================================\n");
+// 	line = get_next_line(fd);
+// 	printf("still a line ?  :|%s|\n", line);
 
-// 		line = getnexline(fd);
-// 	printf("line 2 in main is :%s\n", line);
-// 	free(line);
-
-// 		line = getnexline(fd);
-// 	printf("line 3 in main is :%s\n", line);
-// 	free(line);
-
-// 	// 	line = getnexline(fd);
-// 	// printf("line 4 in main is :%s\n", line);
-// 	// free(line);
-
-// 	// 		line = getnexline(fd);
-// 	// printf("line 4 in main is :%s\n", line);
-// 	// free(line);
-	
-// 	// while (getnexline(fd))
-// 	// {
-		
-// 	// 	printf("line 1 in main is :%s\n", line);	
-// 	// }
-// 	// free(line);
-
-// 	// char *buffer = ft_strdup("abc\0def\nffdfdfd");
-// 	// printf("buffer is  %s\n", buffer);
-
-// 	// printf("adress of buffer  %p\n", &buffer[8]);
-// 	// line = before_nl(buffer);
-// 	// printf("before nl, line is %s\n", line);
-// 	// printf("before nl, buffer is %s\n", buffer);
+// 	printf("========================================================\n");
 
 // 	close(fd);
 // 	return (0);
