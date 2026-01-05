@@ -6,7 +6,7 @@
 /*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 23:32:41 by mberraho          #+#    #+#             */
-/*   Updated: 2026/01/04 23:33:15 by mberraho         ###   ########.fr       */
+/*   Updated: 2026/01/05 15:54:02 by mberraho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ char	*get_next_line(int fd)
 	char		*tmp;
 	char		*line;
 
-	if (fd <= 0 || BUFFER_SIZE <= 0)
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
 	if (get_pos_nl(stash) == -1)
 	{
