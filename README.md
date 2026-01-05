@@ -1,6 +1,4 @@
-*This activity has been created as part of the 42 curriculum by mberraho.*
-
-![Alt text](https://github.com/dimenoste/getnextline/blob/big_buffer_size/static/getnextline.drawio.png?raw=true "Diagram for get next line")
+![Alt text](./static/getnextline.drawio.png?raw=true "Diagram for get next line")
 
 # get_next_line
 
