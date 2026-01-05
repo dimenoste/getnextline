@@ -6,7 +6,7 @@
 /*   By: mberraho <mehdi.berraho@learner.42.tech    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/04 23:32:41 by mberraho          #+#    #+#             */
-/*   Updated: 2026/01/05 15:54:02 by mberraho         ###   ########.fr       */
+/*   Updated: 2026/01/05 21:44:05 by mberraho         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,7 +102,7 @@ char	*get_next_line(int fd)
 	stash = NULL;
 	return (line);
 }
-
+//# include <fcntl.h>
 // int	main(void)
 // {
 // 	int fd;
